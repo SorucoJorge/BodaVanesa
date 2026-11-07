@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Generar invitaciones | Vanesa & Mauricio</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="generador.css">
+	<script src="generador.js" defer></script>
+</head>
+<body>
+	<main class="admin-shell">
+		<a class="back-link" href="../index.html">← Volver a la invitación</a>
+		<p class="eyebrow">Herramienta privada · Vanesa & Mauricio</p>
+		<h1>Generador de<br><em>invitaciones</em></h1>
+		<p class="intro">Escribe una invitación por línea. Usa <code>Nombre | pases</code> y elige 1 o 2 pases. Los nombres y tokens se procesan solo en este navegador.</p>
+		<label for="site-url">Dirección publicada del sitio</label>
+		<input id="site-url" type="url" placeholder="https://tuusuario.github.io/boda/" autocomplete="url">
+		<label for="guest-list">Invitados</label>
+		<textarea id="guest-list" rows="11" placeholder="Carmen Sarabia y esposo | 2&#10;Ana Rosa Alfaro | 1&#10;Jorge Soruco y Manuel Alarcón | 2"></textarea>
+		<div class="toolbar"><button class="primary" id="generate" type="button">Generar enlaces</button><button id="download-csv" type="button" disabled>Descargar CSV para Sheets</button></div>
+		<p class="status" id="status" role="status"></p>
+		<div class="results" id="results"></div>
+	</main>
+</body>
+</html>

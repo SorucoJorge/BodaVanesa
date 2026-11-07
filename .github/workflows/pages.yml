@@ -1,0 +1,49 @@
+name: Publish wedding invitation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Prepare public site files
+        run: |
+          mkdir -p _site/assets/photos _site/assets/frames _site/assets/music
+          cp index.html styles.css camera.css carousel.css app.js config.js _site/
+          cp assets/photos/*.jpg _site/assets/photos/
+          cp assets/frames/*.png _site/assets/frames/
+          cp assets/music/photograph.mp3 _site/assets/music/
+          touch _site/.nojekyll
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
