@@ -550,6 +550,7 @@ async function startCamera() {
     cameraStream.getVideoTracks().forEach((track) => track.addEventListener("ended", handleCameraTrackEnded, { once: true }));
     cameraVideo.muted = true;
     cameraVideo.srcObject = cameraStream;
+    cameraStage.dataset.selfie = String(cameraFacingMode === "user");
     await cameraVideo.play();
     await waitForCameraMetadata(cameraVideo);
     const orientation = getSelectedFrameOrientation();
@@ -642,32 +643,20 @@ takePhotoButton.addEventListener("click", async () => {
   context.filter = "blur(22px)";
   context.drawImage(photoSource, openingX + (openingWidth - coverWidth) / 2, openingY + (openingHeight - coverHeight) / 2, coverWidth, coverHeight);
   context.filter = "none";
-  const containScale = Math.min(openingWidth / sourceWidth, openingHeight / sourceHeight);
-  const photoWidth = sourceWidth * containScale;
-  const photoHeight = sourceHeight * containScale;
+  const photoWidth = sourceWidth * coverScale;
+  const photoHeight = sourceHeight * coverScale;
+  if (cameraFacingMode === "user") {
+    context.translate(openingX * 2 + openingWidth, 0);
+    context.scale(-1, 1);
+  }
   context.drawImage(photoSource, openingX + (openingWidth - photoWidth) / 2, openingY + (openingHeight - photoHeight) / 2, photoWidth, photoHeight);
   context.restore();
   context.drawImage(frameImage, 0, 0, width, height);
   photoSource.close?.();
 
-  // En pantalla vertical, el marco echado se muestra girado; exporta la foto con esa misma orientación.
-  const rotateLandscapePhoto = orientation === "landscape" && window.matchMedia("(orientation: portrait)").matches;
-  const exportCanvas = document.createElement("canvas");
-  const exportContext = exportCanvas.getContext("2d");
-  if (!exportContext) throw new Error("No se pudo preparar la foto para descargar.");
-  if (rotateLandscapePhoto) {
-    exportCanvas.width = height;
-    exportCanvas.height = width;
-    exportContext.translate(height, 0);
-    exportContext.rotate(Math.PI / 2);
-  } else {
-    exportCanvas.width = width;
-    exportCanvas.height = height;
-  }
-  exportContext.drawImage(cameraCanvas, 0, 0);
   const photoBlob = await new Promise((resolve, reject) => {
     try {
-      exportCanvas.toBlob((blob) => {
+      cameraCanvas.toBlob((blob) => {
         if (blob) resolve(blob);
         else reject(new Error("El navegador no pudo exportar la foto. Intenta de nuevo."));
       }, "image/jpeg", .94);
