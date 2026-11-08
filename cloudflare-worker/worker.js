@@ -1,8 +1,3 @@
-const ALLOWED_ORIGINS = new Set([
-  "https://sorucojorge.github.io",
-  "http://localhost",
-  "http://127.0.0.1",
-]);
 const CALLBACK_PATTERN = /^weddingCallback_[A-Za-z0-9_]+$/;
 const TOKEN_PATTERN = /^[a-f0-9]{36}$/;
 const ACTIONS = new Set(["guest", "messages"]);
@@ -93,8 +88,6 @@ async function handlePost(request, env) {
     if (!requestId) throw new Error("Identificador de solicitud no válido.");
     if (!POST_ACTIONS.has(payload.action) || !TOKEN_PATTERN.test(payload.token || "")) throw new Error("Solicitud no válida.");
 
-    const origin = request.headers.get("Origin");
-    if (origin && !ALLOWED_ORIGINS.has(origin)) throw new Error("Origen no autorizado.");
 
     const upstreamUrl = getUpstreamUrl(env);
     const upstreamBody = new URLSearchParams({ payload: rawPayload });

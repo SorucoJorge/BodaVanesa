@@ -21,4 +21,4 @@ Cloudflare explica dónde crear el Worker en su [guía del panel](https://develo
 
 El sitio mantiene Apps Script como respaldo hasta activar el gateway. Cuando tengas la dirección `workers.dev`, colócala como `apiGatewayUrl` en `config.js` (sin una barra final), y publica los cambios del repositorio. Desde ese momento, consultas y envíos irán por el Worker.
 
-El Worker solo reenvía las acciones `guest`, `messages`, `rsvp`, `song` y `message`; valida el formato del token y el callback; y limita los envíos POST al origen del sitio o localhost. Las validaciones y límites por invitado de Apps Script siguen activos.
+El Worker solo reenvía las acciones `guest`, `messages`, `rsvp`, `song` y `message`; valida el formato del token y el callback; y limita las acciones, el formato y tamaño de cada solicitud. La identidad se valida por el token de invitación en Apps Script, que conserva sus límites por invitado.
