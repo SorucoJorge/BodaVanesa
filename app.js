@@ -1,5 +1,5 @@
 const targetDate = new Date("2026-11-27T19:00:00-04:00");
-const apiUrl = window.WEDDING_CONFIG?.appsScriptUrl || "";
+const apiUrl = window.WEDDING_CONFIG?.apiGatewayUrl || window.WEDDING_CONFIG?.appsScriptUrl || "";
 const inviteToken = new URLSearchParams(location.search).get("i");
 const envelopeScreen = document.querySelector("#envelope-screen");
 const envelopeButton = document.querySelector("#music-toggle");
