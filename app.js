@@ -2,6 +2,19 @@ const targetDate = new Date("2026-11-27T19:00:00-04:00");
 const apiUrl = window.WEDDING_CONFIG?.apiGatewayUrl || window.WEDDING_CONFIG?.appsScriptUrl || "";
 const inviteToken = new URLSearchParams(location.search).get("i");
 const envelopeScreen = document.querySelector("#envelope-screen");
+function returnToInvitationStart() {
+  if (window.location.hash) {
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.hash = "";
+    window.history.replaceState(window.history.state, "", cleanUrl.pathname + cleanUrl.search);
+  }
+  window.scrollTo(0, 0);
+}
+
+returnToInvitationStart();
+window.addEventListener("pageshow", () => {
+  if (envelopeScreen?.isConnected) returnToInvitationStart();
+});
 const envelopeButton = document.querySelector("#music-toggle");
 const musicButton = envelopeButton;
 const weddingAudio = document.querySelector("#wedding-audio");
@@ -32,6 +45,7 @@ function playWeddingSong() {
 function openInvitation() {
   if (invitationOpened) return;
   invitationOpened = true;
+  returnToInvitationStart();
   envelopeScreen.classList.add("is-opening");
   envelopeScreen.setAttribute("aria-hidden", "true");
   document.body.classList.add("invitation-open");
