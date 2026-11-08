@@ -1,4 +1,4 @@
 window.WEDDING_CONFIG = {
-  apiGatewayUrl: "",
+  apiGatewayUrl: "https://boda-vanesa-api.jorgesoruco94.workers.dev",
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbxFh0zQ8Lg1n4-5mExMyKn19C8U2862_ojsdL9_BXi9sHfGcATYONArQMU2QlV0tORg/exec",
 };
