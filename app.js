@@ -443,6 +443,17 @@ function updateFrameOrientationButton() {
   frameOrientationButton.setAttribute("aria-label", "Cambiar orientación del marco. Actual: " + labels[frameOrientationMode].replace("Marco: ", "") + ".");
 }
 
+function updateCameraOrientationHelp() {
+  if (!cameraDialog.open || !cameraStream || takePhotoButton.disabled) return;
+  const screenOrientation = window.matchMedia("(orientation: landscape)").matches ? "landscape" : "portrait";
+  if (screenOrientation !== frameOrientationMode) {
+    document.querySelector("#camera-help").textContent = frameOrientationMode === "landscape"
+      ? "Gira el teléfono horizontalmente para aprovechar toda la pantalla."
+      : "Gira el teléfono verticalmente para aprovechar toda la pantalla.";
+  } else {
+    document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
+  }
+}
 async function setFrameOrientation(orientation) {
   if (!frameAssetPaths[orientation]) return null;
   const frameImage = await getFrameImage(orientation);
@@ -559,7 +570,7 @@ async function startCamera() {
     takePhotoButton.disabled = false;
     takePhotoButton.textContent = "Tomar foto";
     switchCameraButton.textContent = cameraFacingMode === "user" ? "Usar cámara trasera" : "Usar cámara frontal";
-    document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
+    updateCameraOrientationHelp();
   } catch (error) {
     stopCamera();
     takePhotoButton.disabled = false;
@@ -583,8 +594,10 @@ frameOrientationButton.addEventListener("click", async () => {
   updateFrameOrientationButton();
   const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
   if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
+  else updateCameraOrientationHelp();
 });
-
+window.addEventListener("orientationchange", updateCameraOrientationHelp);
+window.addEventListener("resize", updateCameraOrientationHelp);
 document.querySelector("#close-camera").addEventListener("click", () => cameraDialog.close());
 cameraDialog.addEventListener("click", (event) => { if (event.target === cameraDialog) cameraDialog.close(); });
 cameraDialog.addEventListener("close", () => {
@@ -629,22 +642,24 @@ takePhotoButton.addEventListener("click", async () => {
   const openingWidth = Math.round(width * opening.width);
   const openingHeight = Math.round(height * opening.height);
 
-  context.fillStyle = "#f8f4e9";
+  // Suaviza una ampliación de fondo y conserva completa la foto nítida encima, sin recortarla.
+  context.fillStyle = "#171c17";
   context.fillRect(openingX, openingY, openingWidth, openingHeight);
-    const openingAspect = openingWidth / openingHeight;
-  const sourceAspect = sourceWidth / sourceHeight;
-  let cropX = 0;
-  let cropY = 0;
-  let cropWidth = sourceWidth;
-  let cropHeight = sourceHeight;
-  if (sourceAspect > openingAspect) {
-    cropWidth = sourceHeight * openingAspect;
-    cropX = (sourceWidth - cropWidth) / 2;
-  } else {
-    cropHeight = sourceWidth / openingAspect;
-    cropY = (sourceHeight - cropHeight) / 2;
-  }
-  context.drawImage(photoSource, cropX, cropY, cropWidth, cropHeight, openingX, openingY, openingWidth, openingHeight);
+  context.save();
+  context.beginPath();
+  context.rect(openingX, openingY, openingWidth, openingHeight);
+  context.clip();
+  const coverScale = Math.max(openingWidth / sourceWidth, openingHeight / sourceHeight);
+  const coverWidth = sourceWidth * coverScale + 48;
+  const coverHeight = sourceHeight * coverScale + 48;
+  context.filter = "blur(22px)";
+  context.drawImage(photoSource, openingX + (openingWidth - coverWidth) / 2, openingY + (openingHeight - coverHeight) / 2, coverWidth, coverHeight);
+  context.filter = "none";
+  const containScale = Math.min(openingWidth / sourceWidth, openingHeight / sourceHeight);
+  const photoWidth = sourceWidth * containScale;
+  const photoHeight = sourceHeight * containScale;
+  context.drawImage(photoSource, openingX + (openingWidth - photoWidth) / 2, openingY + (openingHeight - photoHeight) / 2, photoWidth, photoHeight);
+  context.restore();
   context.drawImage(frameImage, 0, 0, width, height);
   photoSource.close?.();
 
