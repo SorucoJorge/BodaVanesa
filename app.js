@@ -443,17 +443,6 @@ function updateFrameOrientationButton() {
   frameOrientationButton.setAttribute("aria-label", "Cambiar orientación del marco. Actual: " + labels[frameOrientationMode].replace("Marco: ", "") + ".");
 }
 
-function updateCameraOrientationHelp() {
-  if (!cameraDialog.open || !cameraStream || takePhotoButton.disabled) return;
-  const screenOrientation = window.matchMedia("(orientation: landscape)").matches ? "landscape" : "portrait";
-  if (screenOrientation !== frameOrientationMode) {
-    document.querySelector("#camera-help").textContent = frameOrientationMode === "landscape"
-      ? "Gira el teléfono horizontalmente para aprovechar toda la pantalla."
-      : "Gira el teléfono verticalmente para aprovechar toda la pantalla.";
-  } else {
-    document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
-  }
-}
 async function setFrameOrientation(orientation) {
   if (!frameAssetPaths[orientation]) return null;
   const frameImage = await getFrameImage(orientation);
@@ -570,7 +559,7 @@ async function startCamera() {
     takePhotoButton.disabled = false;
     takePhotoButton.textContent = "Tomar foto";
     switchCameraButton.textContent = cameraFacingMode === "user" ? "Usar cámara trasera" : "Usar cámara frontal";
-    updateCameraOrientationHelp();
+    document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
   } catch (error) {
     stopCamera();
     takePhotoButton.disabled = false;
@@ -594,10 +583,8 @@ frameOrientationButton.addEventListener("click", async () => {
   updateFrameOrientationButton();
   const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
   if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
-  else updateCameraOrientationHelp();
+  else document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
 });
-window.addEventListener("orientationchange", updateCameraOrientationHelp);
-window.addEventListener("resize", updateCameraOrientationHelp);
 document.querySelector("#close-camera").addEventListener("click", () => cameraDialog.close());
 cameraDialog.addEventListener("click", (event) => { if (event.target === cameraDialog) cameraDialog.close(); });
 cameraDialog.addEventListener("close", () => {
@@ -663,9 +650,24 @@ takePhotoButton.addEventListener("click", async () => {
   context.drawImage(frameImage, 0, 0, width, height);
   photoSource.close?.();
 
+  // En pantalla vertical, el marco echado se muestra girado; exporta la foto con esa misma orientación.
+  const rotateLandscapePhoto = orientation === "landscape" && window.matchMedia("(orientation: portrait)").matches;
+  const exportCanvas = document.createElement("canvas");
+  const exportContext = exportCanvas.getContext("2d");
+  if (!exportContext) throw new Error("No se pudo preparar la foto para descargar.");
+  if (rotateLandscapePhoto) {
+    exportCanvas.width = height;
+    exportCanvas.height = width;
+    exportContext.translate(height, 0);
+    exportContext.rotate(Math.PI / 2);
+  } else {
+    exportCanvas.width = width;
+    exportCanvas.height = height;
+  }
+  exportContext.drawImage(cameraCanvas, 0, 0);
   const photoBlob = await new Promise((resolve, reject) => {
     try {
-      cameraCanvas.toBlob((blob) => {
+      exportCanvas.toBlob((blob) => {
         if (blob) resolve(blob);
         else reject(new Error("El navegador no pudo exportar la foto. Intenta de nuevo."));
       }, "image/jpeg", .94);
