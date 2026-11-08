@@ -78,7 +78,7 @@ function apiPost(payload) {
     const requestId = `request_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const frame = document.createElement("iframe");
     const form = document.createElement("form");
-    const timeout = window.setTimeout(() => finish(new Error("Tiempo de espera agotado.")), 20000);
+    const timeout = window.setTimeout(() => finish(new Error("No recibimos la confirmación del servidor. La información podría haberse guardado; revisa antes de volver a enviarla.")), 30000);
     const finish = (error, result) => { window.clearTimeout(timeout); window.removeEventListener("message", onMessage); frame.remove(); form.remove(); error ? reject(error) : resolve(result); };
     const onMessage = (event) => {
       if (event.source !== frame.contentWindow || event.data?.source !== "wedding-api" || event.data?.requestId !== requestId) return;
@@ -242,19 +242,40 @@ const partyWrap = document.querySelector("#party-size-wrap");
 const partySize = document.querySelector("#party-size");
 
 function showGuest(name, maximum) {
-  guestName.value = name;
-  partySize.replaceChildren();
-  for (let count = 1; count <= maximum; count += 1) {
-    const option = document.createElement("option"); option.value = String(count); option.textContent = `${count} ${count === 1 ? "persona" : "personas"}`; partySize.append(option);
-  }
-  guestLoading.hidden = true; guestFields.hidden = false;
+  document.querySelector("#guest-name").value = name;
+  const select = document.querySelector("#party-size");
+  select.replaceChildren(...Array.from({ length: maximum }, (_, index) => new Option(String(index + 1), String(index + 1))));
+  document.querySelector("#guest-loading").hidden = true;
+  document.querySelector("#guest-missing").hidden = true;
+  document.querySelector("#guest-form-fields").hidden = false;
 }
 
 async function loadGuest() {
-  if (!inviteToken || !apiUrl) { guestLoading.hidden = true; guestMissing.hidden = false; return; }
-  try { const result = await apiGet({ action: "guest", token: inviteToken }); if (!result.ok) throw new Error(); showGuest(result.name, Number(result.cupos)); }
-  catch { guestLoading.hidden = true; guestMissing.hidden = false; }
+  const retryButton = document.querySelector("#retry-guest");
+  const errorText = document.querySelector("#guest-error-text");
+  if (!inviteToken || !apiUrl) {
+    guestLoading.hidden = true;
+    document.querySelector("#guest-missing").hidden = false;
+    retryButton.hidden = true;
+    return;
+  }
+  guestLoading.hidden = false;
+  document.querySelector("#guest-missing").hidden = true;
+  guestLoading.textContent = "Cargando los datos de esta invitación…";
+  retryButton.hidden = true;
+  try {
+    const result = await apiGet({ action: "guest", token: inviteToken, _: Date.now() });
+    if (!result.ok || !result.name || !Number(result.cupos)) throw new Error("No encontramos los datos de esta invitación.");
+    showGuest(result.name, Number(result.cupos));
+  } catch (error) {
+    guestLoading.hidden = true;
+    document.querySelector("#guest-missing").hidden = false;
+    errorText.textContent = `${error.message || "No se pudieron cargar los datos."} Comprueba tu conexión y vuelve a intentar.`;
+    retryButton.hidden = false;
+  }
 }
+
+document.querySelector("#retry-guest").addEventListener("click", loadGuest);
 loadGuest();
 attendance.addEventListener("change", () => { partyWrap.hidden = attendance.value !== "yes"; partySize.required = attendance.value === "yes"; });
 
@@ -265,12 +286,17 @@ document.querySelector("#rsvp-form").addEventListener("submit", async (event) =>
   if (!apiUrl || !inviteToken) { showStatus(status, "Abre el enlace personalizado para confirmar tu asistencia.", true); return; }
   const formData = new FormData(event.currentTarget);
   const payload = { action: "rsvp", token: inviteToken, asistencia: formData.get("attendance"), cantidad: formData.get("attendance") === "yes" ? Number(formData.get("partySize")) : 0 };
+  const originalLabel = submitButton.textContent;
   submitButton.disabled = true;
-  try { const result = await apiPost(payload); if (!result.ok) throw new Error(result.error || "No se pudo guardar la respuesta."); showStatus(status, "¡Gracias! Tu respuesta quedó registrada."); }
-  catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
-  finally { submitButton.disabled = false; }
+  submitButton.textContent = "Enviando…";
+  showStatus(status, "Enviando tu confirmación…");
+  try {
+    const result = await apiPost(payload);
+    if (!result.ok) throw new Error(result.error || "No se pudo guardar la respuesta.");
+    showStatus(status, "¡Confirmación enviada correctamente! Gracias por responder.");
+  } catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
+  finally { submitButton.disabled = false; submitButton.textContent = originalLabel; }
 });
-
 const messageInput = document.querySelector("#message");
 messageInput.addEventListener("input", () => { document.querySelector("#message-length").textContent = `${messageInput.value.length} / 280`; });
 
@@ -302,15 +328,18 @@ document.querySelector("#message-form").addEventListener("submit", async (event)
   if (!inviteToken || !apiUrl) { showStatus(status, "Abre el enlace personalizado para dejar tu dedicatoria.", true); return; }
   if (!message) return;
   const submitButton = event.currentTarget.querySelector("button[type=submit]");
+  const originalLabel = submitButton.textContent;
   submitButton.disabled = true;
+  submitButton.textContent = "Enviando…";
+  showStatus(status, "Enviando tu dedicatoria…");
   try {
     const result = await apiPost({ action: "message", token: inviteToken, mensaje: message });
     if (!result.ok) throw new Error(result.error || "No se pudo enviar el mensaje.");
     messageInput.value = "";
     document.querySelector("#message-length").textContent = "0 / 280";
-    showStatus(status, "Gracias. Tu dedicatoria quedó pendiente de revisión.");
+    showStatus(status, "¡Dedicatoria enviada! Quedó pendiente de revisión.");
   } catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
-  finally { submitButton.disabled = false; }
+  finally { submitButton.disabled = false; submitButton.textContent = originalLabel; }
 });
 const songInput = document.querySelector("#song");
 document.querySelector("#song-form").addEventListener("submit", async (event) => {
@@ -320,14 +349,17 @@ document.querySelector("#song-form").addEventListener("submit", async (event) =>
   const song = songInput.value.trim();
   if (!inviteToken || !apiUrl) { showStatus(status, "Abre el enlace personalizado para sugerir una canción.", true); return; }
   if (!song || song.length > 120) return;
+  const originalLabel = submitButton.textContent;
   submitButton.disabled = true;
+  submitButton.textContent = "Enviando…";
+  showStatus(status, "Enviando tu canción…");
   try {
     const result = await apiPost({ action: "song", token: inviteToken, cancion: song });
     if (!result.ok) throw new Error(result.error || "No se pudo guardar la canción.");
     songInput.value = "";
-    showStatus(status, "¡Gracias! Guardamos tu sugerencia.");
+    showStatus(status, "¡Canción enviada! Puedes sugerir más cuando quieras.");
   } catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
-  finally { submitButton.disabled = false; }
+  finally { submitButton.disabled = false; submitButton.textContent = originalLabel; }
 });
 const cameraDialog = document.querySelector("#camera-dialog");
 const cameraVideo = document.querySelector("#camera-video");
@@ -355,7 +387,7 @@ const frameImageCache = new Map();
 let cameraStream;
 let capturedPhotoUrl;
 let cameraFacingMode = "user";
-let frameOrientationMode = "auto";
+let frameOrientationMode = "portrait";
 let activeFrameOrientation = "portrait";
 
 function getFrameOrientation(width, height) {
@@ -402,14 +434,13 @@ function getFrameDimensions(frameImage) {
 }
 
 function getSelectedFrameOrientation() {
-  if (frameOrientationMode !== "auto") return frameOrientationMode;
-  return window.matchMedia("(orientation: landscape)").matches ? "landscape" : "portrait";
+  return frameOrientationMode;
 }
 
 function updateFrameOrientationButton() {
-  const labels = { auto: "Marco: automático", portrait: "Marco: vertical", landscape: "Marco: horizontal" };
+  const labels = { portrait: "Marco: parado", landscape: "Marco: echado" };
   frameOrientationButton.textContent = labels[frameOrientationMode];
-  frameOrientationButton.setAttribute("aria-label", `Orientación del marco: ${labels[frameOrientationMode].replace("Marco: ", "")}. Toca para cambiar.`);
+  frameOrientationButton.setAttribute("aria-label", "Cambiar orientación del marco. Actual: " + labels[frameOrientationMode].replace("Marco: ", "") + ".");
 }
 
 async function setFrameOrientation(orientation) {
@@ -425,11 +456,6 @@ async function setFrameOrientation(orientation) {
   return frameImage;
 }
 
-async function refreshCameraFrame() {
-  if (!cameraDialog.open || !cameraStream || frameOrientationMode !== "auto" || takePhotoButton.disabled) return;
-  const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
-  if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
-}
 async function setPreviewFrame() {
   const frameImage = await getFrameImage("portrait");
   framePreview.classList.toggle("has-frame-asset", Boolean(frameImage));
@@ -553,14 +579,11 @@ switchCameraButton.addEventListener("click", async () => {
 });
 
 frameOrientationButton.addEventListener("click", async () => {
-  const modes = ["auto", "portrait", "landscape"];
-  frameOrientationMode = modes[(modes.indexOf(frameOrientationMode) + 1) % modes.length];
+  frameOrientationMode = frameOrientationMode === "portrait" ? "landscape" : "portrait";
   updateFrameOrientationButton();
   const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
   if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
 });
-window.addEventListener("orientationchange", refreshCameraFrame);
-window.addEventListener("resize", refreshCameraFrame);
 
 document.querySelector("#close-camera").addEventListener("click", () => cameraDialog.close());
 cameraDialog.addEventListener("click", (event) => { if (event.target === cameraDialog) cameraDialog.close(); });

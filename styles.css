@@ -310,4 +310,6 @@ img, video, canvas, iframe {
 .song-form-row { display: flex; align-items: stretch; flex-wrap: wrap; gap: 9px; }
 .song-form-row input { flex: 1 1 190px; min-width: 0; min-height: 45px; padding: 10px 12px; border: 0; border-bottom: 1px solid #b8c2b5; background: #ffffff59; color: var(--ink); }
 .song-form-row .button { flex: 0 0 auto; }
-@media (max-width: 760px) { .rsvp-forms { gap: 23px; } .song-form-row .button { width: 100%; justify-content: center; } }
+@media (max-width: 760px) { .rsvp-forms { gap: 23px; } .song-form-row .button { width: 100%; justify-content: center; } }.form-status:not(:empty) { min-height: 0; margin-top: 10px; padding: 11px 13px; border-left: 3px solid #6e876c; background: #e9eee6; color: #334b37; font-size: 13px; font-weight: 600; line-height: 1.5; }
+.form-status[data-error="true"] { border-left-color: #9b4942; background: #f5e9e6; color: #813e38; }
+#retry-guest { margin-top: 12px; }

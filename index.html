@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="carousel.css">
   <link rel="stylesheet" href="camera.css">
-  <script src="config.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="config.js?v=20261107" defer></script>
+  <script src="app.js?v=20261107" defer></script>
 </head>
 
 <body>
@@ -249,7 +249,7 @@
             <p class="form-status" id="rsvp-status" role="status"></p>
           </div>
           <div class="guest-missing" id="guest-missing" hidden>
-            <p>Esta invitación es personal. Ábrela desde el enlace que recibiste para confirmar tu asistencia.</p>
+            <p id="guest-error-text">Esta invitación es personal. Ábrela desde el enlace que recibiste para confirmar tu asistencia.</p><button class="text-link" id="retry-guest" type="button" hidden>Reintentar carga</button>
           </div>
         </form>
         <form class="song-form" id="song-form">
@@ -296,7 +296,7 @@
     <div class="camera-footer">
       <div class="camera-tools" id="camera-tools">
         <button class="camera-tool" id="switch-camera" type="button" aria-label="Cambiar entre cámara frontal y trasera">↻ <span>Cambiar cámara</span></button>
-        <button class="camera-tool" id="toggle-frame-orientation" type="button">Marco: automático</button>
+        <button class="camera-tool" id="toggle-frame-orientation" type="button">Marco: parado</button>
       </div>
       <div class="camera-actions">
         <button class="button button-dark" id="take-photo" type="button">Tomar foto</button>

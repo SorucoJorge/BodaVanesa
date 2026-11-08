@@ -55,9 +55,7 @@ function doPost(event) {
 			const song = String(payload.cancion || "").trim();
 			if (!song || song.length > 120) throw new Error("La canción debe tener entre 1 y 120 caracteres.");
 			const songsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.songs);
-			const existingSongs = songsSheet.getLastRow() < 2 ? [] : songsSheet.getRange(2, 2, songsSheet.getLastRow() - 1, 3).getValues();
-			const duplicate = existingSongs.some((row) => String(row[0]) === guest.token && String(row[2]).trim().toLocaleLowerCase() === song.toLocaleLowerCase());
-			if (!duplicate) songsSheet.appendRow([new Date(), guest.token, safeSheetText_(guest.name, 120), safeSheetText_(song, 120)]);
+			songsSheet.appendRow([new Date(), guest.token, safeSheetText_(guest.name, 120), safeSheetText_(song, 120)]);
 			result = { ok: true };
 		} else if (payload.action === "message") {
 			enforceRateLimit_(guest.token, "message", 5, 3600);
