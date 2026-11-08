@@ -50,6 +50,15 @@ function doPost(event) {
 			enforceRateLimit_(guest.token, "rsvp", 8, 3600);
 			saveRsvp_(guest, payload);
 			result = { ok: true };
+		} else if (payload.action === "song") {
+			enforceRateLimit_(guest.token, "song", 20, 3600);
+			const song = String(payload.cancion || "").trim();
+			if (!song || song.length > 120) throw new Error("La canción debe tener entre 1 y 120 caracteres.");
+			const songsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.songs);
+			const existingSongs = songsSheet.getLastRow() < 2 ? [] : songsSheet.getRange(2, 2, songsSheet.getLastRow() - 1, 3).getValues();
+			const duplicate = existingSongs.some((row) => String(row[0]) === guest.token && String(row[2]).trim().toLocaleLowerCase() === song.toLocaleLowerCase());
+			if (!duplicate) songsSheet.appendRow([new Date(), guest.token, safeSheetText_(guest.name, 120), safeSheetText_(song, 120)]);
+			result = { ok: true };
 		} else if (payload.action === "message") {
 			enforceRateLimit_(guest.token, "message", 5, 3600);
 			const message = String(payload.mensaje || "").trim();
@@ -85,13 +94,6 @@ function saveRsvp_(guest, payload) {
 	const rowValues = [new Date(), guest.token, safeSheetText_(guest.name, 120), attendance, count];
 	if (existingIndex < 0) sheet.appendRow(rowValues);
 	else sheet.getRange(existingIndex + 2, 1, 1, rowValues.length).setValues([rowValues]);
-	const song = String(payload.cancion || "").trim().slice(0, 120);
-	if (song) {
-		const songsSheet = spreadsheet.getSheetByName(SHEET_NAMES.songs);
-		const existingSongs = songsSheet.getLastRow() < 2 ? [] : songsSheet.getRange(2, 2, songsSheet.getLastRow() - 1, 3).getValues();
-		const duplicate = existingSongs.some((row) => String(row[0]) === guest.token && String(row[2]).trim().toLocaleLowerCase() === song.toLocaleLowerCase());
-		if (!duplicate) songsSheet.appendRow([new Date(), guest.token, safeSheetText_(guest.name, 120), safeSheetText_(song, 120)]);
-	}
 }
 
 function safeSheetText_(value, maxLength) {

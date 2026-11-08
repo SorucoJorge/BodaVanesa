@@ -229,27 +229,40 @@
         <h2>¿Vienes<br><em>a celebrar?</em></h2>
         <p>Confírmanos para preparar todo con mucho cariño.</p>
       </div>
-      <form class="rsvp-form" id="rsvp-form">
-        <div class="guest-loading" id="guest-loading">Preparando tu invitación…</div>
-        <div class="guest-form-fields" id="guest-form-fields" hidden><label for="guest-name">Invitación
-            para</label><input id="guest-name" name="name" readonly><label for="attendance">Tu respuesta</label><select
-            id="attendance" name="attendance" required>
-            <option value="">Selecciona una opción</option>
-            <option value="yes">Sí, asistiré</option>
-            <option value="no">No podré asistir</option>
-          </select>
-          <div id="party-size-wrap" hidden><label for="party-size">Personas que asistirán</label><select id="party-size"
-              name="partySize"></select></div><label for="song">Una canción para bailar
-            <span>(opcional)</span></label><input id="song" name="song" maxlength="120"
-            placeholder="Título y artista"><button class="button button-dark" type="submit">Enviar confirmación <span
-              aria-hidden="true">↗</span></button>
-          <p class="form-status" id="rsvp-status" role="status"></p>
-        </div>
-        <div class="guest-missing" id="guest-missing" hidden>
-          <p>Esta invitación es personal. Ábrela desde el enlace que recibiste para confirmar tu asistencia.</p>
-        </div>
-      </form>
-    </section>
+      <div class="rsvp-forms">
+        <form class="rsvp-form" id="rsvp-form">
+          <div class="guest-loading" id="guest-loading">Preparando tu invitación…</div>
+          <div class="guest-form-fields" id="guest-form-fields" hidden>
+            <label for="guest-name">Invitación para</label>
+            <input id="guest-name" name="name" readonly>
+            <label for="attendance">Tu respuesta</label>
+            <select id="attendance" name="attendance" required>
+              <option value="">Selecciona una opción</option>
+              <option value="yes">Sí, asistiré</option>
+              <option value="no">No podré asistir</option>
+            </select>
+            <div id="party-size-wrap" hidden>
+              <label for="party-size">Personas que asistirán</label>
+              <select id="party-size" name="partySize"></select>
+            </div>
+            <button class="button button-dark" type="submit">Enviar confirmación <span aria-hidden="true">↗</span></button>
+            <p class="form-status" id="rsvp-status" role="status"></p>
+          </div>
+          <div class="guest-missing" id="guest-missing" hidden>
+            <p>Esta invitación es personal. Ábrela desde el enlace que recibiste para confirmar tu asistencia.</p>
+          </div>
+        </form>
+        <form class="song-form" id="song-form">
+          <p class="section-kicker">La música que nos une</p>
+          <label for="song">¿Qué canción te gustaría escuchar?</label>
+          <p class="song-form-note">Puedes sugerir canciones cuando quieras, incluso al acercarse la celebración.</p>
+          <div class="song-form-row">
+            <input id="song" name="song" maxlength="120" placeholder="Título y artista" required>
+            <button class="button button-dark" type="submit">Sugerir canción <span aria-hidden="true">↗</span></button>
+          </div>
+          <p class="form-status" id="song-status" role="status"></p>
+        </form>
+      </div>    </section>
 
     <section class="guestbook-section">
       <div class="guestbook-title">
@@ -273,19 +286,24 @@
 
   <dialog class="camera-dialog" id="camera-dialog" aria-labelledby="camera-title">
     <div class="camera-header">
-      <h2 id="camera-title">Un recuerdo para llevar</h2><button class="close-button" id="close-camera" type="button"
-        aria-label="Cerrar cámara">×</button>
+      <h2 id="camera-title">Sonríe, estás aquí</h2>
+      <button class="close-button" id="close-camera" type="button" aria-label="Cerrar cámara">×</button>
     </div>
     <p class="camera-help" id="camera-help">Permite el acceso a la cámara para tomar tu foto.</p>
-    <div class="camera-stage"><video id="camera-video" autoplay playsinline></video><canvas id="camera-canvas"
-        hidden></canvas>
-      <div class="camera-overlay"><img id="camera-frame-overlay" class="camera-frame-overlay" alt="" hidden><span>V
-          <i>&</i> M</span><small>27 · 11 · 2026</small></div>
+    <div class="camera-stage"><video id="camera-video" autoplay playsinline></video><canvas id="camera-canvas" hidden></canvas>
+      <div class="camera-overlay"><img id="camera-frame-overlay" class="camera-frame-overlay" alt="" hidden><span>V <i>&</i> M</span><small>27 · 11 · 2026</small></div>
     </div>
-    <div class="camera-actions"><button class="button button-dark" id="take-photo" type="button">Tomar
-        foto</button><button class="button button-light" id="discard-photo" type="button" hidden>Descartar y
-        repetir</button><a class="button button-dark" id="download-photo" hidden
-        download="recuerdo-vanesa-mauricio.jpg">Guardar foto <span aria-hidden="true">↓</span></a></div>
+    <div class="camera-footer">
+      <div class="camera-tools" id="camera-tools">
+        <button class="camera-tool" id="switch-camera" type="button" aria-label="Cambiar entre cámara frontal y trasera">↻ <span>Cambiar cámara</span></button>
+        <button class="camera-tool" id="toggle-frame-orientation" type="button">Marco: automático</button>
+      </div>
+      <div class="camera-actions">
+        <button class="button button-dark" id="take-photo" type="button">Tomar foto</button>
+        <button class="button button-light" id="discard-photo" type="button" hidden>Repetir</button>
+        <a class="button button-dark" id="download-photo" hidden download="recuerdo-vanesa-mauricio.jpg">Guardar foto <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
   </dialog>
   <audio id="wedding-audio" src="assets/music/photograph.mp3" loop preload="none"></audio>
 </body>

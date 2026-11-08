@@ -371,3 +371,45 @@
     max-height: 45dvh;
   }
 }
+
+/* Camera opens as an immersive, orientation-aware viewport. */
+.camera-dialog[open] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: #101713;
+  color: #fffefa;
+}
+.camera-dialog::backdrop { background: #101713; }
+.camera-header, .camera-help, .camera-footer { position: absolute; z-index: 5; left: 0; right: 0; }
+.camera-header { top: 0; padding: max(14px, env(safe-area-inset-top)) 16px 12px; background: linear-gradient(#101713d9, transparent); }
+.camera-header h2 { color: #fffefa; }
+.camera-help { top: 62px; margin: 0; padding: 0 18px; color: #f2f2eb; text-align: center; text-shadow: 0 1px 5px #000; }
+.camera-dialog .close-button { color: #fffefa; border-color: #ffffff70; }
+.camera-stage { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; display: grid; place-items: center; overflow: hidden; background: #101713; }
+.camera-stage[data-frame-orientation="portrait"] { width: min(100vw, 67dvh); height: auto; aspect-ratio: 1028 / 1529; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.camera-stage[data-frame-orientation="landscape"] { width: min(100vw, 150dvh); height: auto; aspect-ratio: 3 / 2; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.camera-stage video, .camera-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.camera-stage[data-frame-orientation="portrait"] video { inset: 21% auto auto 11.8%; width: 76.6%; height: 67%; }
+.camera-stage[data-frame-orientation="landscape"] video { inset: 26.6% auto auto 12.8%; width: 74.4%; height: 53.1%; }
+.camera-footer { bottom: 0; padding: 14px 14px max(18px, env(safe-area-inset-bottom)); display: grid; gap: 12px; background: linear-gradient(transparent, #101713ed 35%); }
+.camera-tools, .camera-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; }
+.camera-tool { min-height: 42px; padding: 8px 12px; border: 1px solid #ffffff85; border-radius: 3px; background: #101713b8; color: #fffefa; font: 600 12px var(--sans); }
+.camera-actions .button { min-height: 46px; }
+.camera-dialog [hidden], .camera-actions [hidden] { display: none !important; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .camera-header { padding-top: max(8px, env(safe-area-inset-top)); }
+  .camera-header h2 { font-size: 20px; }
+  .camera-help { top: 45px; font-size: 10px; }
+  .camera-footer { padding-top: 8px; gap: 6px; }
+  .camera-tools, .camera-actions { gap: 6px; }
+  .camera-tool, .camera-actions .button { min-height: 36px; padding-top: 5px; padding-bottom: 5px; }
+}

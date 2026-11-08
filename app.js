@@ -262,12 +262,13 @@ document.querySelector("#rsvp-form").addEventListener("submit", async (event) =>
   event.preventDefault();
   const status = document.querySelector("#rsvp-status");
   const submitButton = event.currentTarget.querySelector("button[type=submit]");
-  if (!apiUrl || !inviteToken) { showStatus(status, "La confirmación estará disponible al configurar el enlace personalizado.", true); return; }
+  if (!apiUrl || !inviteToken) { showStatus(status, "Abre el enlace personalizado para confirmar tu asistencia.", true); return; }
   const formData = new FormData(event.currentTarget);
-  const payload = { action: "rsvp", token: inviteToken, asistencia: formData.get("attendance"), cantidad: formData.get("attendance") === "yes" ? Number(formData.get("partySize")) : 0, cancion: String(formData.get("song") || "").trim() };
+  const payload = { action: "rsvp", token: inviteToken, asistencia: formData.get("attendance"), cantidad: formData.get("attendance") === "yes" ? Number(formData.get("partySize")) : 0 };
   submitButton.disabled = true;
   try { const result = await apiPost(payload); if (!result.ok) throw new Error(result.error || "No se pudo guardar la respuesta."); showStatus(status, "¡Gracias! Tu respuesta quedó registrada."); }
-  catch (error) { submitButton.disabled = false; showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
+  catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
+  finally { submitButton.disabled = false; }
 });
 
 const messageInput = document.querySelector("#message");
@@ -276,13 +277,19 @@ messageInput.addEventListener("input", () => { document.querySelector("#message-
 async function loadMessages() {
   if (!apiUrl) return;
   try {
-    const result = await apiGet({ action: "messages" }); if (!result.ok) return;
-    const list = document.querySelector("#messages-list"); list.replaceChildren();
+    const result = await apiGet({ action: "messages" });
+    if (!result.ok) return;
+    const list = document.querySelector("#messages-list");
+    list.replaceChildren();
     result.messages.forEach(({ nombre, mensaje }) => {
-      const item = document.createElement("article"); item.className = "guest-message";
-      const text = document.createElement("p"); text.textContent = mensaje;
-      const author = document.createElement("span"); author.textContent = nombre;
-      item.append(text, author); list.append(item);
+      const item = document.createElement("article");
+      item.className = "guest-message";
+      const text = document.createElement("p");
+      text.textContent = mensaje;
+      const author = document.createElement("span");
+      author.textContent = nombre;
+      item.append(text, author);
+      list.append(item);
     });
   } catch { /* La sección permanece vacía si Sheets no responde. */ }
 }
@@ -294,14 +301,34 @@ document.querySelector("#message-form").addEventListener("submit", async (event)
   const message = messageInput.value.trim();
   if (!inviteToken || !apiUrl) { showStatus(status, "Abre el enlace personalizado para dejar tu dedicatoria.", true); return; }
   if (!message) return;
+  const submitButton = event.currentTarget.querySelector("button[type=submit]");
+  submitButton.disabled = true;
   try {
     const result = await apiPost({ action: "message", token: inviteToken, mensaje: message });
     if (!result.ok) throw new Error(result.error || "No se pudo enviar el mensaje.");
-    messageInput.value = ""; document.querySelector("#message-length").textContent = "0 / 280";
+    messageInput.value = "";
+    document.querySelector("#message-length").textContent = "0 / 280";
     showStatus(status, "Gracias. Tu dedicatoria quedó pendiente de revisión.");
   } catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
+  finally { submitButton.disabled = false; }
 });
-
+const songInput = document.querySelector("#song");
+document.querySelector("#song-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const status = document.querySelector("#song-status");
+  const submitButton = event.currentTarget.querySelector("button[type=submit]");
+  const song = songInput.value.trim();
+  if (!inviteToken || !apiUrl) { showStatus(status, "Abre el enlace personalizado para sugerir una canción.", true); return; }
+  if (!song || song.length > 120) return;
+  submitButton.disabled = true;
+  try {
+    const result = await apiPost({ action: "song", token: inviteToken, cancion: song });
+    if (!result.ok) throw new Error(result.error || "No se pudo guardar la canción.");
+    songInput.value = "";
+    showStatus(status, "¡Gracias! Guardamos tu sugerencia.");
+  } catch (error) { showStatus(status, error.message || "No se pudo enviar. Intenta de nuevo.", true); }
+  finally { submitButton.disabled = false; }
+});
 const cameraDialog = document.querySelector("#camera-dialog");
 const cameraVideo = document.querySelector("#camera-video");
 const cameraCanvas = document.querySelector("#camera-canvas");
@@ -312,6 +339,9 @@ const downloadPhoto = document.querySelector("#download-photo");
 const cameraFrameOverlay = document.querySelector("#camera-frame-overlay");
 const previewFrameOverlay = document.querySelector("#frame-preview-overlay");
 const cameraStage = document.querySelector(".camera-stage");
+const cameraTools = document.querySelector("#camera-tools");
+const switchCameraButton = document.querySelector("#switch-camera");
+const frameOrientationButton = document.querySelector("#toggle-frame-orientation");
 const framePreview = document.querySelector(".frame-inner");
 const frameAssetPaths = {
   portrait: "assets/frames/marco-vertical.png",
@@ -324,6 +354,9 @@ const frameOpenings = {
 const frameImageCache = new Map();
 let cameraStream;
 let capturedPhotoUrl;
+let cameraFacingMode = "user";
+let frameOrientationMode = "auto";
+let activeFrameOrientation = "portrait";
 
 function getFrameOrientation(width, height) {
   return width > height ? "landscape" : "portrait";
@@ -368,10 +401,21 @@ function getFrameDimensions(frameImage) {
   };
 }
 
-async function setFrameOrientation(width, height) {
-  if (!width || !height) return null;
-  const orientation = getFrameOrientation(width, height);
+function getSelectedFrameOrientation() {
+  if (frameOrientationMode !== "auto") return frameOrientationMode;
+  return window.matchMedia("(orientation: landscape)").matches ? "landscape" : "portrait";
+}
+
+function updateFrameOrientationButton() {
+  const labels = { auto: "Marco: automático", portrait: "Marco: vertical", landscape: "Marco: horizontal" };
+  frameOrientationButton.textContent = labels[frameOrientationMode];
+  frameOrientationButton.setAttribute("aria-label", `Orientación del marco: ${labels[frameOrientationMode].replace("Marco: ", "")}. Toca para cambiar.`);
+}
+
+async function setFrameOrientation(orientation) {
+  if (!frameAssetPaths[orientation]) return null;
   const frameImage = await getFrameImage(orientation);
+  activeFrameOrientation = orientation;
   cameraOverlay.dataset.orientation = orientation;
   cameraOverlay.classList.toggle("has-frame-asset", Boolean(frameImage));
   cameraStage.dataset.frameOrientation = orientation;
@@ -381,6 +425,11 @@ async function setFrameOrientation(width, height) {
   return frameImage;
 }
 
+async function refreshCameraFrame() {
+  if (!cameraDialog.open || !cameraStream || frameOrientationMode !== "auto" || takePhotoButton.disabled) return;
+  const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
+  if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
+}
 async function setPreviewFrame() {
   const frameImage = await getFrameImage("portrait");
   framePreview.classList.toggle("has-frame-asset", Boolean(frameImage));
@@ -391,6 +440,7 @@ async function setPreviewFrame() {
 }
 
 setPreviewFrame();
+updateFrameOrientationButton();
 
 function stopCamera() {
   cameraStream?.getTracks().forEach((track) => track.stop());
@@ -417,6 +467,7 @@ function clearCapturedPhoto() {
   discardPhotoButton.hidden = true;
   takePhotoButton.hidden = false;
   takePhotoButton.disabled = true;
+  cameraTools.hidden = false;
   takePhotoButton.textContent = "Conectando cámara…";
   cameraVideo.hidden = false;
   cameraCanvas.hidden = true;
@@ -469,17 +520,19 @@ async function startCamera() {
   document.querySelector("#camera-help").textContent = "Solicitando acceso a la cámara…";
   try {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error("Este navegador no permite usar la cámara. Abre la invitación en HTTPS o en un navegador compatible.");
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: cameraFacingMode } }, audio: false });
     cameraStream.getVideoTracks().forEach((track) => track.addEventListener("ended", handleCameraTrackEnded, { once: true }));
     cameraVideo.muted = true;
     cameraVideo.srcObject = cameraStream;
     await cameraVideo.play();
     await waitForCameraMetadata(cameraVideo);
-    const frameImage = await setFrameOrientation(cameraVideo.videoWidth, cameraVideo.videoHeight);
-    if (!frameImage) throw new Error(`No se pudo cargar el marco ${getFrameOrientation(cameraVideo.videoWidth, cameraVideo.videoHeight)}. Revisa los PNG de assets/frames.`);
+    const orientation = getSelectedFrameOrientation();
+    const frameImage = await setFrameOrientation(orientation);
+    if (!frameImage) throw new Error(`No se pudo cargar el marco ${orientation}. Revisa los PNG de assets/frames.`);
     if (!cameraStream.getVideoTracks().some((track) => track.readyState === "live")) throw new Error("La cámara se desconectó. Vuelve a intentarlo.");
     takePhotoButton.disabled = false;
     takePhotoButton.textContent = "Tomar foto";
+    switchCameraButton.textContent = cameraFacingMode === "user" ? "Usar cámara trasera" : "Usar cámara frontal";
     document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
   } catch (error) {
     stopCamera();
@@ -493,6 +546,21 @@ document.querySelector("#open-camera").addEventListener("click", async () => {
   cameraDialog.showModal();
   await startCamera();
 });
+
+switchCameraButton.addEventListener("click", async () => {
+  cameraFacingMode = cameraFacingMode === "user" ? "environment" : "user";
+  await startCamera();
+});
+
+frameOrientationButton.addEventListener("click", async () => {
+  const modes = ["auto", "portrait", "landscape"];
+  frameOrientationMode = modes[(modes.indexOf(frameOrientationMode) + 1) % modes.length];
+  updateFrameOrientationButton();
+  const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
+  if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
+});
+window.addEventListener("orientationchange", refreshCameraFrame);
+window.addEventListener("resize", refreshCameraFrame);
 
 document.querySelector("#close-camera").addEventListener("click", () => cameraDialog.close());
 cameraDialog.addEventListener("click", (event) => { if (event.target === cameraDialog) cameraDialog.close(); });
@@ -516,8 +584,8 @@ takePhotoButton.addEventListener("click", async () => {
   const sourceWidth = photoSource.width || photoSource.naturalWidth || photoSource.videoWidth;
   const sourceHeight = photoSource.height || photoSource.naturalHeight || photoSource.videoHeight;
   if (!sourceWidth || !sourceHeight) throw new Error("La cámara no entregó una imagen. Pulsa repetir e inténtalo otra vez.");
-  const orientation = getFrameOrientation(sourceWidth, sourceHeight);
-  const frameImage = await setFrameOrientation(sourceWidth, sourceHeight);
+  const orientation = activeFrameOrientation;
+  const frameImage = await getFrameImage(orientation);
   if (!frameImage) throw new Error(`No se pudo cargar el marco ${orientation}. Revisa los PNG de assets/frames.`);
   const frameDimensions = getFrameDimensions(frameImage);
 
@@ -574,6 +642,7 @@ takePhotoButton.addEventListener("click", async () => {
   downloadPhoto.hidden = false;
   discardPhotoButton.hidden = false;
   takePhotoButton.hidden = true;
+  cameraTools.hidden = true;
   stopCamera();
   cameraVideo.hidden = true;
   cameraCanvas.hidden = false;

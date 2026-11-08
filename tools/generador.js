@@ -83,7 +83,7 @@ document.querySelector("#generate").addEventListener("click", () => {
 
 downloadButton.addEventListener("click", () => {
 	const lines = [["Token", "Nombre", "Cupos"], ...generatedGuests.map(({ token, name, cupos }) => [token, name, cupos])];
-	const csv = lines.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
+	const csv = lines.map((row) => row.map(escapeCsv).join(";")).join("\r\n");
 	const link = document.createElement("a");
 	link.href = URL.createObjectURL(new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" }));
 	link.download = "invitados.csv";
