@@ -41,7 +41,7 @@ function openInvitation() {
   envelopeButton.innerHTML = '<span class="music-icon" id="music-icon" aria-hidden="true">▶</span><span class="music-status" id="music-status">Photograph · Ed Sheeran</span>';
   setMusicState(false);
   playWeddingSong();
-  window.setTimeout(() => envelopeScreen.remove(), 1250);
+  window.setTimeout(() => envelopeScreen.remove(), window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1550);
 }
 
 musicButton.addEventListener("click", () => {

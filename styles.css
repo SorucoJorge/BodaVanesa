@@ -304,3 +304,116 @@ img, video, canvas, iframe {
 @media (max-width: 760px) { .rsvp-forms { gap: 23px; } .song-form-row .button { width: 100%; justify-content: center; } }.form-status:not(:empty) { min-height: 0; margin-top: 10px; padding: 11px 13px; border-left: 3px solid #6e876c; background: #e9eee6; color: #334b37; font-size: 13px; font-weight: 600; line-height: 1.5; }
 .form-status[data-error="true"] { border-left-color: #9b4942; background: #f5e9e6; color: #813e38; }
 #retry-guest { margin-top: 12px; }
+/* Apertura ceremonial del sobre */
+.envelope-screen {
+  transition: opacity 1.05s cubic-bezier(.2,.7,.2,1) .28s,
+    visibility 0s linear 1.33s,
+    transform 1.05s cubic-bezier(.2,.7,.2,1) .28s;
+}
+.envelope-screen::before,
+.envelope-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.envelope-screen::before {
+  background: radial-gradient(ellipse at 50% 47%, #d4bd8438 0, #d4bd8412 21%, transparent 48%);
+  opacity: .72;
+  transform: scale(.88);
+}
+.envelope-screen::after {
+  inset: -20% -60%;
+  opacity: 0;
+  background: linear-gradient(105deg, transparent 42%, #fffefa05 47%, #fffefaad 50%, #d8c18a70 51%, transparent 58%);
+  transform: translateX(-35%) skewX(-12deg);
+}
+.envelope-content { position: relative; z-index: 1; }
+.envelope-art {
+  isolation: isolate;
+  animation: envelope-float 5s ease-in-out infinite;
+}
+.envelope-art::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -9% -12%;
+  border: 1px solid #a78b5b30;
+  border-radius: 50%;
+  box-shadow: 0 0 38px #c5ae7b24, inset 0 0 30px #c5ae7b12;
+  animation: envelope-halo 4.5s ease-in-out infinite;
+}
+.envelope-seal {
+  animation: seal-glow 2.8s ease-in-out infinite;
+}
+.envelope-screen.is-opening {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.035);
+  pointer-events: none;
+}
+.envelope-screen.is-opening::before { animation: envelope-bloom 1.35s ease-out both; }
+.envelope-screen.is-opening::after { animation: envelope-shimmer 1.25s .06s ease-in-out both; }
+.envelope-screen.is-opening .envelope-art {
+  animation: envelope-reveal 1.16s cubic-bezier(.2,.75,.2,1) both;
+}
+.envelope-screen.is-opening .envelope-flap {
+  transform: rotateX(178deg);
+  transition: transform .78s cubic-bezier(.18,.8,.22,1);
+  backface-visibility: hidden;
+}
+.envelope-screen.is-opening .envelope-letter {
+  transform: translateY(-112px) scale(1.045);
+  transition: transform 1.08s cubic-bezier(.16,.8,.22,1) .16s;
+}
+.envelope-screen.is-opening .envelope-seal {
+  opacity: 0;
+  transform: translate(-50%,-50%) scale(1.65) rotate(-14deg);
+  filter: blur(2px);
+  animation: none;
+}
+.envelope-open {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px #293a3130, 0 0 0 1px #ffffff45 inset;
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.envelope-open:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px #293a3138, 0 0 0 1px #ffffff55 inset;
+}
+@keyframes envelope-float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-5px) rotate(-.35deg); }
+}
+@keyframes envelope-halo {
+  0%, 100% { opacity: .42; transform: scale(.97); }
+  50% { opacity: .9; transform: scale(1.035); }
+}
+@keyframes seal-glow {
+  0%, 100% { box-shadow: 0 3px 10px #293a3124, 0 0 0 0 #b49a6940; }
+  50% { box-shadow: 0 4px 15px #293a3138, 0 0 0 9px #b49a6900; }
+}
+@keyframes envelope-bloom {
+  0% { opacity: .72; transform: scale(.88); }
+  55% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+@keyframes envelope-shimmer {
+  0% { opacity: 0; transform: translateX(-35%) skewX(-12deg); }
+  30% { opacity: .9; }
+  100% { opacity: 0; transform: translateX(35%) skewX(-12deg); }
+}
+@keyframes envelope-reveal {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(4px) scale(.985); }
+  100% { transform: translateY(-30px) scale(1.045); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .envelope-art, .envelope-art::before, .envelope-seal { animation: none !important; }
+  .envelope-screen, .envelope-screen.is-opening,
+  .envelope-screen.is-opening .envelope-flap,
+  .envelope-screen.is-opening .envelope-letter,
+  .envelope-screen.is-opening .envelope-seal { transition-duration: .01ms !important; }
+}
