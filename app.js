@@ -373,30 +373,22 @@ const previewFrameOverlay = document.querySelector("#frame-preview-overlay");
 const cameraStage = document.querySelector(".camera-stage");
 const cameraTools = document.querySelector("#camera-tools");
 const switchCameraButton = document.querySelector("#switch-camera");
-const frameOrientationButton = document.querySelector("#toggle-frame-orientation");
+const frameImageButton = document.querySelector("#toggle-frame-image");
 const framePreview = document.querySelector(".frame-inner");
 const frameAssetPaths = {
-  portrait: "assets/frames/marco-vertical.png",
-  landscape: "assets/frames/marco-horizontal.png",
+  vertical: "assets/frames/marco-vertical.png",
+  horizontal: "assets/frames/marco-horizontal.png",
 };
-const frameOpenings = {
-  portrait: { x: .118, y: .21, width: .766, height: .67 },
-  landscape: { x: .128, y: .266, width: .744, height: .531 },
-};
+const cameraOpening = { x: .118, y: .21, width: .766, height: .67 };
 const frameImageCache = new Map();
 let cameraStream;
 let capturedPhotoUrl;
 let cameraFacingMode = "user";
-let frameOrientationMode = "portrait";
-let activeFrameOrientation = "portrait";
+let selectedFrameImage = "vertical";
 
-function getFrameOrientation(width, height) {
-  return width > height ? "landscape" : "portrait";
-}
-
-function getFrameImage(orientation) {
-  if (!frameImageCache.has(orientation)) {
-    frameImageCache.set(orientation, (async () => {
+function getFrameImage(frameName) {
+  if (!frameImageCache.has(frameName)) {
+    frameImageCache.set(frameName, (async () => {
       const loadImageElement = (source) => new Promise((resolve) => {
         const image = new Image();
         image.onload = () => resolve(image);
@@ -404,7 +396,7 @@ function getFrameImage(orientation) {
         image.src = source;
       });
       try {
-        const response = await fetch(frameAssetPaths[orientation], { cache: "force-cache", credentials: "same-origin" });
+        const response = await fetch(frameAssetPaths[frameName], { cache: "force-cache", credentials: "same-origin" });
         if (response.ok) {
           const frameBlob = await response.blob();
           if (window.createImageBitmap) {
@@ -419,11 +411,11 @@ function getFrameImage(orientation) {
           }
         }
       } catch { /* Prueba la ruta local directamente como último fallback. */ }
-      const directImage = await loadImageElement(frameAssetPaths[orientation]);
+      const directImage = await loadImageElement(frameAssetPaths[frameName]);
       return directImage?.naturalWidth && directImage?.naturalHeight ? directImage : null;
     })());
   }
-  return frameImageCache.get(orientation);
+  return frameImageCache.get(frameName);
 }
 
 function getFrameDimensions(frameImage) {
@@ -433,40 +425,33 @@ function getFrameDimensions(frameImage) {
   };
 }
 
-function getSelectedFrameOrientation() {
-  return frameOrientationMode;
+function updateFrameImageButton() {
+  frameImageButton.textContent = selectedFrameImage === "vertical" ? "Marco: parado" : "Marco: echado";
+  frameImageButton.setAttribute("aria-label", "Cambiar imagen del marco. Actual: " + (selectedFrameImage === "vertical" ? "parado" : "echado") + ".");
 }
 
-function updateFrameOrientationButton() {
-  const labels = { portrait: "Marco: parado", landscape: "Marco: echado" };
-  frameOrientationButton.textContent = labels[frameOrientationMode];
-  frameOrientationButton.setAttribute("aria-label", "Cambiar orientación del marco. Actual: " + labels[frameOrientationMode].replace("Marco: ", "") + ".");
-}
-
-async function setFrameOrientation(orientation) {
-  if (!frameAssetPaths[orientation]) return null;
-  const frameImage = await getFrameImage(orientation);
-  activeFrameOrientation = orientation;
-  cameraOverlay.dataset.orientation = orientation;
+async function setFrameImage(imageType) {
+  if (!frameAssetPaths[imageType]) return null;
+  const frameImage = await getFrameImage(imageType);
+  selectedFrameImage = imageType;
   cameraOverlay.classList.toggle("has-frame-asset", Boolean(frameImage));
-  cameraStage.dataset.frameOrientation = orientation;
   cameraOverlay.hidden = !frameImage;
   cameraFrameOverlay.hidden = !frameImage;
-  if (frameImage) cameraFrameOverlay.src = frameAssetPaths[orientation];
+  if (frameImage) cameraFrameOverlay.src = frameAssetPaths[imageType];
+  updateFrameImageButton();
   return frameImage;
 }
-
 async function setPreviewFrame() {
-  const frameImage = await getFrameImage("portrait");
+  const frameImage = await getFrameImage("vertical");
   framePreview.classList.toggle("has-frame-asset", Boolean(frameImage));
-  framePreview.dataset.orientation = "portrait";
+  framePreview.dataset.frameShape = "vertical";
   framePreview.hidden = !frameImage;
   previewFrameOverlay.hidden = !frameImage;
-  if (frameImage) previewFrameOverlay.src = frameAssetPaths.portrait;
+  if (frameImage) previewFrameOverlay.src = frameAssetPaths.vertical;
 }
 
 setPreviewFrame();
-updateFrameOrientationButton();
+updateFrameImageButton();
 
 function stopCamera() {
   cameraStream?.getTracks().forEach((track) => track.stop());
@@ -553,9 +538,8 @@ async function startCamera() {
     cameraStage.dataset.selfie = String(cameraFacingMode === "user");
     await cameraVideo.play();
     await waitForCameraMetadata(cameraVideo);
-    const orientation = getSelectedFrameOrientation();
-    const frameImage = await setFrameOrientation(orientation);
-    if (!frameImage) throw new Error(`No se pudo cargar el marco ${orientation}. Revisa los PNG de assets/frames.`);
+    const frameImage = await setFrameImage(selectedFrameImage);
+    if (!frameImage) throw new Error(`No se pudo cargar el marco ${selectedFrameImage}. Revisa los PNG de assets/frames.`);
     if (!cameraStream.getVideoTracks().some((track) => track.readyState === "live")) throw new Error("La cámara se desconectó. Vuelve a intentarlo.");
     takePhotoButton.disabled = false;
     takePhotoButton.textContent = "Tomar foto";
@@ -579,12 +563,10 @@ switchCameraButton.addEventListener("click", async () => {
   await startCamera();
 });
 
-frameOrientationButton.addEventListener("click", async () => {
-  frameOrientationMode = frameOrientationMode === "portrait" ? "landscape" : "portrait";
-  updateFrameOrientationButton();
-  const frameImage = await setFrameOrientation(getSelectedFrameOrientation());
+frameImageButton.addEventListener("click", async () => {
+  const nextFrameImage = selectedFrameImage === "vertical" ? "horizontal" : "vertical";
+  const frameImage = await setFrameImage(nextFrameImage);
   if (!frameImage) document.querySelector("#camera-help").textContent = "No se pudo cargar este marco. Revisa los PNG de assets/frames.";
-  else document.querySelector("#camera-help").textContent = "Centra la foto y pulsa el obturador.";
 });
 document.querySelector("#close-camera").addEventListener("click", () => cameraDialog.close());
 cameraDialog.addEventListener("click", (event) => { if (event.target === cameraDialog) cameraDialog.close(); });
@@ -608,15 +590,13 @@ takePhotoButton.addEventListener("click", async () => {
   const sourceWidth = photoSource.width || photoSource.naturalWidth || photoSource.videoWidth;
   const sourceHeight = photoSource.height || photoSource.naturalHeight || photoSource.videoHeight;
   if (!sourceWidth || !sourceHeight) throw new Error("La cámara no entregó una imagen. Pulsa repetir e inténtalo otra vez.");
-  const orientation = activeFrameOrientation;
-  const frameImage = await getFrameImage(orientation);
-  if (!frameImage) throw new Error(`No se pudo cargar el marco ${orientation}. Revisa los PNG de assets/frames.`);
-  const frameDimensions = getFrameDimensions(frameImage);
-
-  cameraCanvas.width = frameDimensions.width;
-  cameraCanvas.height = frameDimensions.height;
-  if (!cameraCanvas.width || !cameraCanvas.height) throw new Error(`El marco ${orientation} no tiene dimensiones válidas.`);
-
+  const frameImage = await getFrameImage(selectedFrameImage);
+  const frameBase = await getFrameImage("vertical");
+  if (!frameImage || !frameBase) throw new Error("No se pudo cargar el marco. Revisa los PNG de assets/frames.");
+  const baseDimensions = getFrameDimensions(frameBase);
+  cameraCanvas.width = baseDimensions.width;
+  cameraCanvas.height = baseDimensions.height;
+  if (!cameraCanvas.width || !cameraCanvas.height) throw new Error("El marco vertical no tiene dimensiones válidas.");
   const width = cameraCanvas.width;
   const height = cameraCanvas.height;
   const context = cameraCanvas.getContext("2d");
@@ -624,7 +604,7 @@ takePhotoButton.addEventListener("click", async () => {
   context.fillStyle = "#f8f4e9";
   context.fillRect(0, 0, width, height);
 
-  const opening = frameOpenings[orientation];
+  const opening = cameraOpening;
   const openingX = Math.round(width * opening.x);
   const openingY = Math.round(height * opening.y);
   const openingWidth = Math.round(width * opening.width);
@@ -651,7 +631,11 @@ takePhotoButton.addEventListener("click", async () => {
   }
   context.drawImage(photoSource, openingX + (openingWidth - photoWidth) / 2, openingY + (openingHeight - photoHeight) / 2, photoWidth, photoHeight);
   context.restore();
-  context.drawImage(frameImage, 0, 0, width, height);
+  const frameDimensions = getFrameDimensions(frameImage);
+  const frameScale = Math.min(width / frameDimensions.width, height / frameDimensions.height);
+  const renderedFrameWidth = frameDimensions.width * frameScale;
+  const renderedFrameHeight = frameDimensions.height * frameScale;
+  context.drawImage(frameImage, (width - renderedFrameWidth) / 2, (height - renderedFrameHeight) / 2, renderedFrameWidth, renderedFrameHeight);
   photoSource.close?.();
 
   const photoBlob = await new Promise((resolve, reject) => {
@@ -667,7 +651,7 @@ takePhotoButton.addEventListener("click", async () => {
   if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl);
   capturedPhotoUrl = URL.createObjectURL(photoBlob);
   downloadPhoto.href = capturedPhotoUrl;
-  downloadPhoto.download = `recuerdo-vanesa-mauricio-${orientation}.jpg`;
+  downloadPhoto.download = `recuerdo-vanesa-mauricio-${selectedFrameImage}.jpg`;
   downloadPhoto.hidden = false;
   discardPhotoButton.hidden = false;
   takePhotoButton.hidden = true;
