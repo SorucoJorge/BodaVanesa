@@ -67,7 +67,7 @@ function apiGet(parameters) {
     const timeout = window.setTimeout(() => finish(new Error("Tiempo de espera agotado.")), 15000);
     const finish = (error, result) => { window.clearTimeout(timeout); delete window[callback]; script.remove(); error ? reject(error) : resolve(result); };
     window[callback] = (result) => finish(null, result);
-    script.onerror = () => finish(new Error("No se pudo conectar con la hoja."));
+    script.onerror = () => finish(new Error("No se pudo cargar Google Apps Script. El navegador o la red podrían estar bloqueando script.google.com; prueba otra red o desactiva temporalmente bloqueadores."));
     script.src = `${apiUrl}?${new URLSearchParams({ ...parameters, callback })}`;
     document.head.append(script);
   });
