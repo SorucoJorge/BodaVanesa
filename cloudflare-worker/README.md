@@ -1,6 +1,6 @@
 # API gateway de la invitación
 
-Este Worker sirve de intermediario entre GitHub Pages y Apps Script. El navegador se conecta a `workers.dev`; el Worker consulta Apps Script desde el servidor, sin usar la sesión de Google de quien abre la invitación.
+Este Worker sirve de intermediario entre GitHub Pages y Apps Script. En los envíos POST, Apps Script devuelve JSON y el Worker genera la página de confirmación para el iframe. El navegador se conecta a `workers.dev`; el Worker consulta Apps Script desde el servidor, sin usar la sesión de Google de quien abre la invitación.
 
 ## Publicación desde Cloudflare
 
@@ -17,8 +17,17 @@ Este Worker sirve de intermediario entre GitHub Pages y Apps Script. El navegado
 
 Cloudflare explica dónde crear el Worker en su [guía del panel](https://developers.cloudflare.com/workers/get-started/dashboard/) y dónde añadir variables en [Variables de entorno](https://developers.cloudflare.com/workers/configuration/environment-variables/).
 
+## Actualizar el formato de respuesta y activar confirmaciones
+
+Para que las confirmaciones se entreguen al navegador, el Worker y Apps Script deben usar el nuevo formato JSON. Actualiza ambos servicios:
+
+1. Copia `apps-script/Code.gs` al editor de Apps Script. Ve a **Implementar → Gestionar implementaciones → Editar → Nueva versión → Implementar**.
+2. En Cloudflare, abre el Worker y **Edit code**. Reemplaza el código por el `worker.js` actualizado de esta carpeta y selecciona **Deploy**.
+
+La URL de implementación de Apps Script se mantiene igual; no cambies `APPS_SCRIPT_URL`.
+
 ## Activación en el sitio
 
-El sitio mantiene Apps Script como respaldo hasta activar el gateway. Cuando tengas la dirección `workers.dev`, colócala como `apiGatewayUrl` en `config.js` (sin una barra final), y publica los cambios del repositorio. Desde ese momento, consultas y envíos irán por el Worker.
+El sitio ya está configurado con la dirección `workers.dev` en `config.js`. Desde ese momento, consultas y envíos van por el Worker.
 
 El Worker solo reenvía las acciones `guest`, `messages`, `rsvp`, `song` y `message`; valida el formato del token y el callback; y limita las acciones, el formato y tamaño de cada solicitud. La identidad se valida por el token de invitación en Apps Script, que conserva sus límites por invitado.

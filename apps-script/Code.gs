@@ -65,8 +65,8 @@ function doPost(event) {
 			result = { ok: true };
 		} else throw new Error("Acción no disponible.");
 	} catch (error) { result = { ok: false, error: error.message || "No se pudo guardar la respuesta." }; }
-	const message = JSON.stringify({ source: "wedding-api", requestId: String(payload.requestId || ""), result: result }).replace(/</g, "\\u003c");
-	return HtmlService.createHtmlOutput("<script>window.parent.postMessage(" + message + ", '*');</script>").setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+	const response = JSON.stringify({ source: "wedding-api", requestId: String(payload.requestId || ""), result: result }).replace(/</g, "\\u003c");
+	return ContentService.createTextOutput(response).setMimeType(ContentService.MimeType.JSON);
 }
 
 function findGuest_(token) {

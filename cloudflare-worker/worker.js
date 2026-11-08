@@ -98,20 +98,18 @@ async function handlePost(request, env) {
       redirect: "follow",
       cache: "no-store",
     });
-    const html = await upstream.text();
+    const responseText = await upstream.text();
     if (!upstream.ok) throw new Error("El servicio de invitaciones no pudo guardar la respuesta.");
+    let apiResponse;
+    try { apiResponse = JSON.parse(responseText); }
+    catch { throw new Error("Apps Script no devolvió una respuesta válida."); }
+    if (apiResponse.source !== "wedding-api" || apiResponse.requestId !== requestId || !apiResponse.result || typeof apiResponse.result !== "object") {
+      throw new Error("La respuesta de Apps Script no coincide con esta solicitud.");
+    }
 
-    // Apps Script returns a small HTML page that posts the result to this form's iframe.
-    // Return only that trusted response body, without Google account cookies or framing headers.
-    return new Response(html, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "no-referrer",
-      },
-    });
+    // Apps Script returns data only. The Worker emits the postMessage page from its own origin,
+    // so the invitation receives the confirmation in its iframe reliably.
+    return postMessagePage(requestId, apiResponse.result);
   } catch (error) {
     return postMessagePage(requestId, { ok: false, error: error.message || "No se pudo guardar la respuesta." }, requestId ? 200 : 400);
   }
