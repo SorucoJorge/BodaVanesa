@@ -1023,3 +1023,53 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .gift-qr-link { width: min(100%, 380px); }
   .gift-download { width: 100%; }
 }
+/* Ajustes finales tras los estilos base de cada sección. */
+.event-section .venue-row {
+  border: 1px solid #d9c5968c;
+  background: #fffefa;
+  color: #293a31;
+}
+.event-section .venue-row h3 { color: #293a31; }
+.event-section .venue-row p.venue-time { color: #4d5a50; }
+.event-section .venue-directions {
+  border: 1px solid #9d7b45;
+  background: #a88955;
+  color: #fffefa;
+}
+.event-section .venue-directions:hover { background: #80623a; color: #fffefa; }
+.memories-section .memories-copy .memories-invitation {
+  color: #39483d;
+  font: 400 clamp(22px, 3vw, 32px)/1.25 var(--serif);
+}
+.memories-section .memories-camera-button {
+  min-width: min(100%, 300px);
+  min-height: 58px;
+  border: 1px solid #7b6034;
+  border-radius: 9px;
+  background: linear-gradient(115deg, #9a7845, #b99a64);
+  color: #fffefa;
+  font-size: 15px;
+  box-shadow: 0 8px 20px #69512d40;
+}
+.memories-section .memories-camera-button:hover { background: linear-gradient(115deg, #80623a, #a98a56); }
+.rsvp-intro p.adults-only-note {
+  max-width: 430px;
+  margin-top: 24px;
+  padding: 16px 18px;
+  border: 1px solid #bda477;
+  border-left: 5px solid #a7864d;
+  border-radius: 8px;
+  background: #f0eadcf5;
+  color: #3e493f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.gift-copy p.gift-invitation-note {
+  margin: 18px 0;
+  padding: 15px 17px;
+  border-left: 5px solid #a7864d;
+  border-radius: 0 9px 9px 0;
+  background: #e8dfc9;
+  color: #3d493f;
+  font: 600 17px/1.5 var(--serif);
+}
