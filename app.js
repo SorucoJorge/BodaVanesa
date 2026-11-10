@@ -2,6 +2,22 @@ const targetDate = new Date("2026-11-27T19:00:00-04:00");
 const apiUrl = window.WEDDING_CONFIG?.apiGatewayUrl || window.WEDDING_CONFIG?.appsScriptUrl || "";
 const inviteToken = new URLSearchParams(location.search).get("i");
 const envelopeScreen = document.querySelector("#envelope-screen");
+const giftSection = document.querySelector("#regalo");
+const giftQr = giftSection?.querySelector(".gift-qr");
+if (giftSection && giftQr) {
+  const expectedGiftQrHash = "7b2fb1c21b57fc7804ff33c13226e7d0a018422433fff2fa21f5764da9de32ff";
+  fetch(giftQr.src, { cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) throw new Error("QR unavailable");
+      return response.arrayBuffer();
+    })
+    .then((imageBytes) => crypto.subtle.digest("SHA-256", imageBytes))
+    .then((digest) => {
+      const actualHash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      if (actualHash === expectedGiftQrHash) giftSection.hidden = false;
+    })
+    .catch(() => {});
+}
 function returnToInvitationStart() {
   if (window.location.hash) {
     const cleanUrl = new URL(window.location.href);

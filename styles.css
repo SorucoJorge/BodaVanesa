@@ -725,6 +725,27 @@ body { color: #26332d; font-size: 16px; line-height: 1.7; }
 .button-light:hover { background: #e4ebe0; color: #22352a; }
 .album-band .button-light { border-color: #fffefa; background: #fffefa; color: #293a31; }
 .album-band .button-light:hover { background: #e6ece2; color: #22352a; }
+.gift-section {
+  padding: 88px 10vw;
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  align-items: center;
+  gap: clamp(32px, 7vw, 90px);
+  border-block: 1px solid #c8d1c3;
+  background: linear-gradient(120deg, #eef1e9, #e0e8dd);
+}
+.gift-section[hidden] { display: none; }
+.gift-copy .section-kicker { margin: 0 0 17px; }
+.gift-copy h2 { margin: 0; font: 400 clamp(42px, 5vw, 66px)/1.02 var(--serif); }
+.gift-copy h2 em { color: #788a73; font-weight: 400; }
+.gift-copy > p:not(.section-kicker) { color: #4f5c53; font-size: 15px; line-height: 1.65; }
+.gift-instructions { padding-left: 23px; color: #3e4c42; font-size: 14px; line-height: 1.65; }
+.gift-instructions li + li { margin-top: 10px; }
+.gift-security-note { padding: 13px 15px; border-left: 4px solid #b8934f; background: #fffefa; }
+.gift-download { margin-top: 6px; }
+.gift-qr-link { justify-self: center; width: min(100%, 440px); padding: 12px; display: block; border: 1px solid #c8c9bf; background: #fff; box-shadow: 0 12px 32px #293a3120; text-align: center; color: #34463a; font-size: 12px; font-weight: 600; }
+.gift-qr { display: block; width: 100%; height: auto; }
+.gift-qr-link span { display: block; padding: 11px 0 2px; }
 .round-link, .gallery-arrow, .close-button, .camera-tool { transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease; }
 .round-link:hover, .gallery-arrow:hover { transform: translateY(-2px); box-shadow: 0 6px 14px #17241d30; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
@@ -740,4 +761,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .timeline h3 { font-size: 22px; }
   .timeline p, .venue-row p:last-child, .memories-copy>p:not(.section-kicker),
   .rsvp-intro>p:last-child, .guestbook-title>p:last-child { font-size: 14px; }
+  .gift-section { padding: 66px 8vw; grid-template-columns: 1fr; gap: 25px; }
+  .gift-qr-link { width: min(100%, 380px); }
+  .gift-download { width: 100%; }
 }

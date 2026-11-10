@@ -31,6 +31,8 @@ jobs:
           cp assets/photos/*.jpg _site/assets/photos/
           cp assets/frames/*.png _site/assets/frames/
           cp assets/music/photograph.mp3 _site/assets/music/
+          mkdir -p _site/assets/frames/qr
+          cp assets/frames/qr/regalo-bnb.png _site/assets/frames/qr/
           touch _site/.nojekyll
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
