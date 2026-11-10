@@ -1073,3 +1073,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   color: #3d493f;
   font: 600 17px/1.5 var(--serif);
 }
+
+/* Deja ver un poco más la fotografía detrás de las tarjetas. */
+main > .countdown-band { background: linear-gradient(110deg, rgba(251, 250, 245, .87), rgba(240, 234, 220, .84) 55%, rgba(251, 250, 245, .87)); }
+main > .invitation-note { background: rgba(251, 250, 245, .87); }
+main > .event-section { background: linear-gradient(125deg, rgba(41, 58, 49, .94), rgba(61, 75, 60, .91) 68%, rgba(41, 58, 49, .94)); }
+main > .schedule-section { background: rgba(251, 250, 245, .87); }
+main > .dress-section { background: rgba(233, 227, 213, .86); }
+main > .story-section { background: rgba(251, 250, 245, .87); }
+main > .memories-section { background: rgba(248, 245, 238, .87); }
+main > .album-band { background: linear-gradient(115deg, rgba(82, 105, 81, .91), rgba(113, 133, 109, .88) 55%, rgba(82, 105, 81, .91)); }
+main > .rsvp-section { background: rgba(251, 250, 245, .88); }
+main > .guestbook-section { background: rgba(233, 231, 221, .86); }
+main > .gift-section { background: rgba(245, 241, 230, .87); }
+.venue-row { background: rgba(255, 254, 250, .93); }
+.rsvp-form, .message-form { background: rgba(255, 254, 250, .92); }
+.song-form { background: rgba(255, 254, 250, .52); }
+.topbar { background: rgba(246, 245, 238, .91); }
+.footer { background: rgba(251, 250, 245, .88); }
+@media (max-width: 760px) {
+  main > .event-section { background: linear-gradient(125deg, rgba(41, 58, 49, .95), rgba(61, 75, 60, .93)); }
+}
