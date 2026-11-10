@@ -334,6 +334,7 @@ img, video, canvas, iframe {
   isolation: isolate;
   animation: envelope-float 5s ease-in-out infinite;
 }
+.envelope-content { width: min(100%, 600px); }
 .envelope-art::before {
   content: "";
   position: absolute;
@@ -556,6 +557,53 @@ img, video, canvas, iframe {
   .envelope-screen::before { animation: none !important; }
   .envelope-screen.is-opening::after { animation: none !important; }
   .envelope-screen.is-opening .envelope-letter { transition-delay: 0s !important; }
+}
+/* Apertura desde el sello central: portada limpia, con un control claro. */
+.envelope-content > .section-kicker {
+  margin-bottom: clamp(30px, 6vh, 54px);
+  color: #405a43;
+  font-size: 12px;
+  letter-spacing: .16em;
+}
+.envelope-art {
+  width: min(88vw, 540px);
+  height: min(53vw, 292px);
+  min-height: 190px;
+  margin-bottom: 0;
+}
+.envelope-seal {
+  appearance: none;
+  padding: 0;
+  color: #604b2a;
+  font: 700 11px/1 var(--sans);
+  letter-spacing: .12em;
+  cursor: pointer;
+  animation: seal-invitation-pulse 2.5s ease-in-out infinite;
+  transition: box-shadow .2s ease, filter .2s ease, transform .2s ease;
+}
+.envelope-seal:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 7px 20px #293a3140, inset 0 0 0 3px #fffefa9c, inset 0 0 0 4px #b08d5278;
+}
+.envelope-seal:focus-visible {
+  outline: 3px solid #536b54;
+  outline-offset: 5px;
+}
+.envelope-seal .envelope-monogram { font: inherit; color: inherit; }
+.envelope-screen.is-opening .envelope-seal { animation: none; }
+@keyframes seal-invitation-pulse {
+  0%, 100% { box-shadow: 0 5px 14px #293a3140, inset 0 0 0 3px #fffefa9c, inset 0 0 0 4px #b08d525e; }
+  50% { box-shadow: 0 6px 20px #b08d5266, 0 0 0 8px #b08d521c, inset 0 0 0 3px #fffefac9, inset 0 0 0 4px #b08d5278; }
+}
+@media (max-width: 520px) {
+  .envelope-art { width: min(88vw, 540px); height: min(55vw, 292px); min-height: 180px; margin-bottom: 0; }
+}
+@media (max-height: 600px) and (orientation: landscape) {
+  .envelope-content > .section-kicker { margin-bottom: 18px; }
+  .envelope-art { width: min(70vw, 450px); height: min(40vw, 220px); min-height: 145px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .envelope-seal { animation: none; }
 }
 /* Refuerzo visual y legibilidad de la invitación */
 :root {

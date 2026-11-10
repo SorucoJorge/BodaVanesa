@@ -53,7 +53,6 @@ function playWeddingSong() {
   if (playback && typeof playback.then === "function") {
     playback.then(() => setMusicState(true)).catch(() => {
       setMusicState(false, "MP3 no disponible");
-      document.querySelector("#envelope-note").textContent = "No se pudo cargar la canción. Comprueba assets/music/photograph.mp3.";
     });
   }
 }
@@ -85,7 +84,6 @@ weddingAudio.addEventListener("pause", () => setMusicState(false));
 weddingAudio.addEventListener("ended", () => setMusicState(false));
 weddingAudio.addEventListener("error", () => {
   setMusicState(false, "MP3 no disponible");
-  document.querySelector("#envelope-note").textContent = "No se encontró assets/music/photograph.mp3.";
 });
 
 function showStatus(element, text, isError = false) { element.textContent = text; element.dataset.error = String(isError); }
