@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 170" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b3c2a0"/>
+      <stop offset=".55" stop-color="#7f9877"/>
+      <stop offset="1" stop-color="#536c55"/>
+    </linearGradient>
+    <radialGradient id="petal" cx="35%" cy="28%" r="75%">
+      <stop offset="0" stop-color="#fffefa"/>
+      <stop offset=".72" stop-color="#f2eee2"/>
+      <stop offset="1" stop-color="#d9d2c1"/>
+    </radialGradient>
+    <radialGradient id="center" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#f7e5a6"/>
+      <stop offset="1" stop-color="#b6924e"/>
+    </radialGradient>
+    <path id="leaf-shape" d="M0 0C12-22 38-28 58-14C46 8 20 16 0 0Z"/>
+    <g id="rose">
+      <g fill="url(#petal)" stroke="#d4cbb8" stroke-width="1.2">
+        <ellipse cy="-17" rx="10" ry="19"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(45)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(90)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(135)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(180)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(225)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(270)"/>
+        <ellipse cy="-17" rx="10" ry="19" transform="rotate(315)"/>
+      </g>
+      <g fill="#fffefa" stroke="#e1d9c8" stroke-width=".8">
+        <ellipse cy="-7" rx="6" ry="10"/>
+        <ellipse cy="-7" rx="6" ry="10" transform="rotate(60)"/>
+        <ellipse cy="-7" rx="6" ry="10" transform="rotate(120)"/>
+        <ellipse cy="-7" rx="6" ry="10" transform="rotate(180)"/>
+        <ellipse cy="-7" rx="6" ry="10" transform="rotate(240)"/>
+        <ellipse cy="-7" rx="6" ry="10" transform="rotate(300)"/>
+      </g>
+      <circle r="5.5" fill="url(#center)"/>
+    </g>
+    <g id="blossom" fill="#fffefa" stroke="#d8d0bf" stroke-width=".8">
+      <ellipse cy="-8" rx="4" ry="8"/>
+      <ellipse cy="-8" rx="4" ry="8" transform="rotate(60)"/>
+      <ellipse cy="-8" rx="4" ry="8" transform="rotate(120)"/>
+      <ellipse cy="-8" rx="4" ry="8" transform="rotate(180)"/>
+      <ellipse cy="-8" rx="4" ry="8" transform="rotate(240)"/>
+      <ellipse cy="-8" rx="4" ry="8" transform="rotate(300)"/>
+      <circle r="2.5" fill="#c5a365" stroke="none"/>
+    </g>
+  </defs>
+  <g fill="none" stroke="#657e62" stroke-width="3" stroke-linecap="round">
+    <path d="M-20 112C100 75 170 134 290 96S500 120 620 92 835 125 960 91s230 25 330-4 165 10 180 17"/>
+    <path d="M-15 128C100 102 194 146 305 113s205 25 320-3 216 34 338 0 219 20 340-6 154 15 177 22" stroke="#a0ad8d" stroke-width="2"/>
+  </g>
+  <g fill="url(#leaf)">
+    <use href="#leaf-shape" x="20" y="100" transform="rotate(-24 20 100)"/><use href="#leaf-shape" x="82" y="93" transform="rotate(28 82 93)"/>
+    <use href="#leaf-shape" x="150" y="107" transform="rotate(-30 150 107)"/><use href="#leaf-shape" x="218" y="93" transform="rotate(24 218 93)"/>
+    <use href="#leaf-shape" x="286" y="103" transform="rotate(-28 286 103)"/><use href="#leaf-shape" x="356" y="94" transform="rotate(32 356 94)"/>
+    <use href="#leaf-shape" x="426" y="108" transform="rotate(-24 426 108)"/><use href="#leaf-shape" x="498" y="94" transform="rotate(28 498 94)"/>
+    <use href="#leaf-shape" x="568" y="102" transform="rotate(-32 568 102)"/><use href="#leaf-shape" x="638" y="92" transform="rotate(23 638 92)"/>
+    <use href="#leaf-shape" x="710" y="107" transform="rotate(-27 710 107)"/><use href="#leaf-shape" x="780" y="92" transform="rotate(31 780 92)"/>
+    <use href="#leaf-shape" x="852" y="103" transform="rotate(-28 852 103)"/><use href="#leaf-shape" x="922" y="93" transform="rotate(25 922 93)"/>
+    <use href="#leaf-shape" x="994" y="107" transform="rotate(-31 994 107)"/><use href="#leaf-shape" x="1064" y="92" transform="rotate(24 1064 92)"/>
+    <use href="#leaf-shape" x="1136" y="103" transform="rotate(-26 1136 103)"/><use href="#leaf-shape" x="1206" y="92" transform="rotate(30 1206 92)"/>
+    <use href="#leaf-shape" x="1278" y="106" transform="rotate(-28 1278 106)"/><use href="#leaf-shape" x="1340" y="93" transform="rotate(25 1340 93)"/>
+  </g>
+  <g fill="#c5a365">
+    <path d="M87 73l4-12 4 12 12 4-12 4-4 12-4-12-12-4z"/><path d="M336 75l3-9 3 9 9 3-9 3-3 9-3-9-9-3z"/>
+    <path d="M590 70l4-11 4 11 11 4-11 4-4 11-4-11-11-4z"/><path d="M1004 72l3-9 3 9 9 3-9 3-3 9-3-9-9-3z"/>
+    <path d="M1260 69l4-11 4 11 11 4-11 4-4 11-4-11-11-4z"/>
+  </g>
+  <g>
+    <use href="#rose" transform="translate(52 93) scale(.88)"/><use href="#rose" transform="translate(248 91) scale(.72)"/>
+    <use href="#rose" transform="translate(450 87) scale(1.05)"/><use href="#rose" transform="translate(700 91) scale(.82)"/>
+    <use href="#rose" transform="translate(950 87) scale(1.05)"/><use href="#rose" transform="translate(1152 91) scale(.72)"/>
+    <use href="#rose" transform="translate(1350 93) scale(.88)"/>
+    <use href="#blossom" transform="translate(155 77) scale(.85)"/><use href="#blossom" transform="translate(357 79) scale(.7)"/>
+    <use href="#blossom" transform="translate(590 76) scale(.82)"/><use href="#blossom" transform="translate(810 78) scale(.72)"/>
+    <use href="#blossom" transform="translate(1040 77) scale(.8)"/><use href="#blossom" transform="translate(1250 78) scale(.7)"/>
+  </g>
+</svg>
