@@ -1073,6 +1073,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   color: #3d493f;
   font: 600 17px/1.5 var(--serif);
 }
+.hero { align-items: end; padding-bottom: clamp(130px, 19vh, 185px); }
+.hero-copy { transform: translateY(0); }
+.hero h1 { font-size: clamp(56px, 9vw, 108px); }
+.hero-date { max-width: 440px; }
+.invitation-note .handwritten { display: none; }
+.rsvp-intro p.invitation-limit-note,
+.rsvp-intro p.adults-only-note {
+  max-width: 440px;
+  margin: 18px 0 0;
+  padding: 15px 17px;
+  border: 1px solid #bda477;
+  border-left: 5px solid #a7864d;
+  border-radius: 8px;
+  background: rgba(240, 234, 220, .9);
+  color: #3e493f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.rsvp-intro p.adults-only-note { margin-top: 12px; }
+.gift-copy p.gift-invitation-note { font-size: 18px; line-height: 1.55; }
+@media (max-width: 760px) {
+  .hero { padding-bottom: 145px; }
+  .hero h1 { font-size: clamp(54px, 13vw, 78px); line-height: .9; }
+  .hero .eyebrow { max-width: 330px; margin-inline: auto; font-size: 10px; }
+  .hero-date { margin-top: 24px; font-size: 18px; }
+}
 
 /* Deja ver un poco más la fotografía detrás de las tarjetas. */
 main > .countdown-band { background: linear-gradient(110deg, rgba(251, 250, 245, .87), rgba(240, 234, 220, .84) 55%, rgba(251, 250, 245, .87)); }
