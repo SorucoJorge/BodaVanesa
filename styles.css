@@ -1146,3 +1146,14 @@ main > section:not(.hero)::before { top: -19px; }
     top: -16px;
   }
 }
+
+@keyframes hero-copy-lower {
+  from { opacity: 0; transform: translateY(88px); }
+  to { opacity: 1; transform: translateY(68px); }
+}
+@media (max-width: 760px) {
+  .hero-copy { transform: translateY(68px); animation: hero-copy-lower .75s both; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .hero-copy { transform: translateY(68px); animation: none; }
+}
