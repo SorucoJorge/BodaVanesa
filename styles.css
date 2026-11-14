@@ -1147,6 +1147,54 @@ main > section:not(.hero)::before { top: -19px; }
   }
 }
 
+.softech-envelope-link {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: block;
+  width: 72px;
+  margin: 0;
+  transform: translateX(-50%);
+  opacity: .68;
+  transition: opacity .2s ease;
+}
+.softech-envelope-link:hover,
+.softech-envelope-link:focus-visible { opacity: 1; }
+.softech-envelope-link img { display: block; width: 100%; height: auto; }
+.footer-promo { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.footer-promo p { order: 1; }
+.footer-promo a { order: 2; }
+.footer-promo p { margin: 0; color: #667369; font-size: 11px; }
+.footer-promo strong { color: #405a43; letter-spacing: .06em; }
+.footer-promo a { color: #405a43; font-size: 11px; font-weight: 600; text-underline-offset: 3px; }
+.footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 13px;
+  padding: 19px 24px 17px;
+}
+.footer-wedding {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.footer-wedding > span { color: #667369; font-size: 12px; white-space: nowrap; }
+.footer-promo {
+  width: 100%;
+  padding-top: 12px;
+  border-top: 1px solid #d9c59670;
+}
+@media (max-width: 760px) {
+  .footer { gap: 11px; padding: 16px 16px 14px; }
+  .footer-promo { gap: 5px; }
+  .footer-promo p, .footer-promo a { font-size: 11px; line-height: 1.5; }
+  .softech-envelope-link { width: 64px; }
+}
+
 @keyframes hero-copy-lower {
   from { opacity: 0; transform: translateY(88px); }
   to { opacity: 1; transform: translateY(68px); }
