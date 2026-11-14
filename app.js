@@ -145,7 +145,7 @@ const galleryControls = document.querySelector(".gallery-controls");
 const galleryPrevious = document.querySelector("#gallery-prev");
 const galleryNext = document.querySelector("#gallery-next");
 const galleryFullscreen = document.querySelector("#gallery-fullscreen");
-const photoUrls = Array.from({ length: 11 }, (_, index) => `assets/photos/${index + 1}.jpg`);
+const photoUrls = Array.from({ length: 14 }, (_, index) => `assets/photos/${index + 1}.jpg`);
 let loadedPhotos = [];
 let currentPhoto = 0;
 let activeLayer = 0;
