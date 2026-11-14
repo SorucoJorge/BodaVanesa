@@ -30,6 +30,7 @@ jobs:
           cp index.html styles.css camera.css carousel.css app.js config.js _site/
           cp assets/photos/*.jpg _site/assets/photos/
           cp assets/frames/*.png _site/assets/frames/
+          cp assets/frames/*.webp _site/assets/frames/
           cp assets/music/photograph.mp3 _site/assets/music/
           mkdir -p _site/assets/frames/qr
           cp assets/frames/qr/regalo-bnb.png _site/assets/frames/qr/

@@ -1132,19 +1132,17 @@ main > section:not(.hero)::before {
   z-index: -1;
   left: 50%;
   width: min(86vw, 350px);
-  height: clamp(110px, 12vw, 145px);
+  height: 40px;
   content: "";
   transform: translateX(-50%);
-  background: url("assets/frames/flores-guirnalda.png") center / contain no-repeat;
+  background: url("assets/frames/flores-guirnalda.webp") center top / 100% auto no-repeat;
   pointer-events: none;
 }
-main > section:not(.hero)::before { top: -66px; }
-main > section:not(.hero) { padding-block: clamp(108px, 10vw, 136px); }
+main > section:not(.hero)::before { top: -19px; }
 @media (max-width: 760px) {
   main > section:not(.hero)::before {
     width: min(86vw, 300px);
-    height: 108px;
-    top: -48px;
+    height: 34px;
+    top: -16px;
   }
-  main > section:not(.hero) { padding-block: 108px; }
 }
