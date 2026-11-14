@@ -26,12 +26,13 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Prepare public site files
         run: |
-          mkdir -p _site/assets/photos _site/assets/frames _site/assets/music
+          mkdir -p _site/assets/photos _site/assets/frames _site/assets/music _site/assets/social
           cp index.html styles.css camera.css carousel.css app.js config.js _site/
           cp assets/photos/*.jpg _site/assets/photos/
           cp assets/frames/*.png _site/assets/frames/
           cp assets/frames/*.webp _site/assets/frames/
           cp assets/music/photograph.mp3 _site/assets/music/
+          cp assets/social/whatsapp-preview.jpg _site/assets/social/
           mkdir -p _site/assets/frames/qr
           cp assets/frames/qr/regalo-bnb.png _site/assets/frames/qr/
           touch _site/.nojekyll
